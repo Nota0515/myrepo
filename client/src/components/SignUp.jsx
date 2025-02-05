@@ -33,8 +33,10 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
 
   const validateInputs = () => {
-    if (!name || !email || !password) {
+    if (!email || !password) {
       alert("Please fill in all fields");
+      setLoading(false);
+      setButtonDisabled(false);
       return false;
     }
     return true;
@@ -43,21 +45,42 @@ const SignUp = () => {
   const handelSignUp = async () => {
     setLoading(true);
     setButtonDisabled(true);
+
     if (validateInputs()) {
-      await UserSignUp({ name, email, password })
-        .then((res) => {
-          dispatch(loginSuccess(res.data));
-          alert("Account Created Success");
-          setLoading(false);
-          setButtonDisabled(false);
-        })
-        .catch((err) => {
-          alert(err.response.data.message);
-          setLoading(false);
-          setButtonDisabled(false);
-        });
+        try {
+            const res = await UserSignUp({ name, email, password });
+
+            console.log("Full Response:", res); // Log the entire response object
+
+            if (res && res.data) { // Check if res AND res.data are defined
+                dispatch(loginSuccess(res.data));
+                alert("Account Created Success");
+            } else {
+                console.error("Invalid API Response:", res); // Log the full response for debugging
+                alert("Signup failed. Invalid response from server.");
+            }
+
+        } catch (err) {
+            console.error("API Error:", err);  // Log the full error object
+
+            // More specific error handling (if possible)
+            if (err.response && err.response.data && err.response.data.message) {
+                alert(err.response.data.message); // Display server error message
+            } else if (err.message) {
+                alert(err.message); // Display a general error message
+            } else {
+                alert("Signup failed. Please try again later."); // Generic message
+            }
+
+        } finally { // This will ALWAYS run, even if there's an error
+            setLoading(false);
+            setButtonDisabled(false);
+        }
+    } else {
+        setLoading(false);
+        setButtonDisabled(false);
     }
-  };
+};
   return (
     <Container>
       <div>

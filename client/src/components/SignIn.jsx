@@ -34,6 +34,8 @@ const SignIn = () => {
   const validateInputs = () => {
     if (!email || !password) {
       alert("Please fill in all fields");
+      setLoading(false);
+      setButtonDisabled(false);
       return false;
     }
     return true;
