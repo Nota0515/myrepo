@@ -49,7 +49,7 @@ export const UserLogin = async (req, res, next) => {
     // Check if password is correct
     const isPasswordCorrect = await bcrypt.compareSync(password, user.password);
     if (!isPasswordCorrect) {
-      return next(createError(403, "Incorrect password"));
+      return next(createError(403, "Invalid email or password"));
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT, {

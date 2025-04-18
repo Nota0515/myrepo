@@ -13,10 +13,23 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user/", UserRoutes);
 
+
+app.use(cors({
+    origin: "http://localhost:3000", // allow your frontend
+    credentials: true
+  }));
+
 // Error handler (no changes needed here)
 app.use((err, req, res, next) => {
-    // ... (your error handler code)
-});
+    const status = err.status || 500;
+    const message = err.message || "Something went wrong!";
+    return res.status(status).json({
+      success: false,
+      status,
+      message,
+    });
+  });
+  
 
 app.get("/", async (req, res) => {
     // ... (your route handler)
@@ -25,10 +38,7 @@ app.get("/", async (req, res) => {
 const connectDB = async () => { // Add async keyword
     mongoose.set("strictQuery", true);
     try {
-        await mongoose.connect(process.env.MONGODB_URL, { // await inside try/catch
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(process.env.MONGODB_URI);
         console.log("Connected to Mongo DB");
     } catch (error) {
         console.error("failed to connect with mongo");
